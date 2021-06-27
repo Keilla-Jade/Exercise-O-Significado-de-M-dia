@@ -72,7 +72,7 @@ function validarObj() {
 function showCalcs() {
     let html = "";
 
-    let _media = media();
+    let _media = media().toFixed(6).replace(".", ",");
     let _percentil = percentil();
     let _mediana = mediana();
     let _moda = moda();
@@ -80,8 +80,8 @@ function showCalcs() {
     if (_media && _percentil && _mediana && _moda) {
         html += "<p>Média: " + _media + "</p>";
         html += "<p>Percentils: " + _percentil + "</p>";
-        html += "<p>Mediana: " + _mediana + "</p>";
-        html += "<p>Moda: " + _moda + "</p>";
+        html += "<p>Mediana: " + _mediana.toString() + "</p>";
+        html += "<p>Moda: " + _moda.toString() + "</p>";
     }
 
     gbi("divRetornos").innerHTML = html;
@@ -102,7 +102,7 @@ function media() {
 
     _soma = _soma / _elms;
 
-    return _soma.toFixed(6).replace(".", ",");
+    return _soma;
 } // Calcula a média da listagem de objetos;
 function mediana() {
     if (!validarObj()) {
@@ -138,33 +138,44 @@ function percentil() {
 
     objetos.forEach((item) => {
         for (let index = 0; index < item.frequencia; index++) {
-            _lista.push(item.valor);            
+            _lista.push(Number(item.valor));
         }
     });
 
+    let _perc0 = perc0(_lista);
+    let _perc50 = perc50(_lista);
+    let _perc100 = perc100(_lista);
+
+    return "0%: " + _perc0.toString() + " - 50%: " + _perc50.toString() + " - 100%: " + _perc100.toString();
+} // Calcula o percentil em 0, 50 e 100;
+function perc0(lista) {
+    return Math.min(...lista);
+}
+function perc50(lista) {
+    let retorno = 0;
     let _soma = 0;
 
-    _lista.forEach((item) => { _soma += Number(item)});
-
-    let perc0 = _lista[0];
-    let perc100 = _lista[_lista.length-1];
-    let perc50 = "";
+    lista.forEach((item) => { _soma += Number(item)});
 
     _soma = Math.floor(_soma / 2);
 
-    for (let index = 0; index < _lista.length; index++) {
-        const element = Number(_lista[index]);
+    for (let index = 0; index < lista.length; index++) {
+        const element = Number(lista[index]);
         
         _soma -= element;
 
         if (_soma <= 0) {
-            perc50 = _lista[index];
+            retorno = lista[index];
             break;
         }
-    }
+    }   
 
-    return "0%: " + perc0.toString() + " - 50%: " + perc50.toString() + " - 100%: " + perc100.toString();
-} // Calcula o percentil em 0, 50 e 100;
+    return retorno;
+}
+function perc100(lista) {
+    return Math.max(...lista);
+}
+
 function moda() {
     if (!validarObj()) {
         alert("Não há cadastros para efetuar o cálculo.");
@@ -178,6 +189,5 @@ function moda() {
             _maiorFrq = Number(item.frequencia);
     });
 
-    return _maiorFrq.toString();
-} // Calcula a moda (valor com maior frequência em que ocorre) da listagem de objetos2
-;
+    return _maiorFrq;
+} // Calcula a moda (valor com maior frequência em que ocorre) da listagem de objetos
